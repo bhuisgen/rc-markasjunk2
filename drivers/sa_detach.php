@@ -15,9 +15,9 @@ class markasjunk2_sa_detach
 
 	public function ham(&$uids)
 	{
-		$rcmail = rcube::get_instance();
+		$rcmail = rcmail::get_instance();
 		$storage = $rcmail->storage;
-		$mbox = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST);
+		$mbox = get_input_value('_mbox', RCUBE_INPUT_POST);
 
 		$new_uids = array();
 		foreach (explode(",", $uids) as $uid) {

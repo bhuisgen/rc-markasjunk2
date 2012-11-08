@@ -21,20 +21,21 @@ class markasjunk2_sa_blacklist
 
 	private function _do_list($uids, $spam)
 	{
-		$rcmail = rcube::get_instance();
+		$rcmail = rcmail::get_instance();
 		if (is_file($rcmail->config->get('markasjunk2_sauserprefs_config')) && !$rcmail->config->load_from_file($rcmail->config->get('markasjunk2_sauserprefs_config'))) {
-			rcube::raise_error(array('code' => 527, 'type' => 'php',
+			raise_error(array('code' => 527, 'type' => 'php',
 				'file' => __FILE__, 'line' => __LINE__,
 				'message' => "Failed to load config from " . $rcmail->config->get('markasjunk2_sauserprefs_config')), true, false);
+
 			return false;
 		}
 
-		$db = rcube_db::factory($rcmail->config->get('sauserprefs_db_dsnw'), $rcmail->config->get('sauserprefs_db_dsnr'), $rcmail->config->get('sauserprefs_db_persistent'));
+		$db = new rcube_mdb2($rcmail->config->get('sauserprefs_db_dsnw'), $rcmail->config->get('sauserprefs_db_dsnr'), $rcmail->config->get('sauserprefs_db_persistent'));
 		$db->db_connect('w');
 
 		// check DB connections and exit on failure
 		if ($err_str = $db->is_error()) {
-			rcube::raise_error(array(
+			raise_error(array(
 				'code' => 603,
 				'type' => 'db',
 				'message' => $err_str), FALSE, TRUE);
@@ -59,7 +60,7 @@ class markasjunk2_sa_blacklist
 								'blacklist_from',
 								$email);
 
-				if (!$db->fetch_array($sql_result)) {
+				if ($db->num_rows($sql_result) == 0) {
 					$db->query(
 						"INSERT INTO ". $rcmail->config->get('sauserprefs_sql_table_name') ." (". $rcmail->config->get('sauserprefs_sql_username_field') .", ". $rcmail->config->get('sauserprefs_sql_preference_field') .", ". $rcmail->config->get('sauserprefs_sql_value_field') .") VALUES (?, ?, ?);",
 						$_SESSION['username'],
@@ -67,7 +68,7 @@ class markasjunk2_sa_blacklist
 						$email);
 
 					if ($rcmail->config->get('markasjunk2_debug'))
-						rcube::write_log('markasjunk2', $_SESSION['username'] . ' blacklist ' . $email);
+						write_log('markasjunk2', $_SESSION['username'] . ' blacklist ' . $email);
 				}
 			}
 			else {
@@ -93,7 +94,7 @@ class markasjunk2_sa_blacklist
 						$email);
 
 					if ($rcmail->config->get('markasjunk2_debug'))
-						rcube::write_log('markasjunk2', $_SESSION['username'] . ' whitelist ' . $email);
+						write_log('markasjunk2', $_SESSION['username'] . ' whitelist ' . $email);
 				}
 			}
 		}
