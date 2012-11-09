@@ -22,15 +22,15 @@ class markasjunk2_sa_blacklist
 	private function _do_list($uids, $spam)
 	{
 		$rcmail = rcmail::get_instance();
-		if (is_file($rcmail->config->get('markasjunk2_sauserprefs_config')) && !$rcmail->config->load_from_file($rcmail->config->get('markasjunk2_sauserprefs_config'))) {
-			raise_error(array('code' => 527, 'type' => 'php',
-				'file' => __FILE__, 'line' => __LINE__,
-				'message' => "Failed to load config from " . $rcmail->config->get('markasjunk2_sauserprefs_config')), true, false);
-
+		if (!$rcmail->config->get('sauserprefs_db_dsnw')) {
+			write_log('errors', 'plugin sauserprefs not loaded');
+			
 			return false;
-		}
+        }
+		
 
 		$db = new rcube_mdb2($rcmail->config->get('sauserprefs_db_dsnw'), $rcmail->config->get('sauserprefs_db_dsnr'), $rcmail->config->get('sauserprefs_db_persistent'));
+		$db->set_debug((bool)rcmail::get_instance()->config->get('sql_debug'));
 		$db->db_connect('w');
 
 		// check DB connections and exit on failure
